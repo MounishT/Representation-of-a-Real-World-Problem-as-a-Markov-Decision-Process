@@ -3,21 +3,18 @@
 
 ## Aim
 
-Write your aim here.
-
-Example:
-
-> To identify a real-world sequential decision-making problem and represent it formally as a Markov Decision Process by defining its states, actions, rewards, transitions, and Python representation.
+To represent the real-world problem of charging a mobile phone battery as a Markov Decision Process (MDP) by defining its states, actions, transition probabilities, reward function, and Python representation.
 
 ---
 
 ## Problem Statement
+A smartphone user needs to charge a phone with a low battery and must choose the most suitable charging method. Three charging options are available: Fast Charger, Normal Charger, and Power Bank. The Fast Charger provides the quickest charging, while the Normal Charger and Power Bank may experience interruptions such as power cuts or low battery. If charging is interrupted, the phone takes longer to become fully charged. This charging process can be modeled as a Markov Decision Process (MDP) because the next state depends only on the current battery status and the selected charging method.
 
 ### Problem Description
 
-Write your answer here.
+Keeping a smartphone charged is a real-world sequential decision-making problem. The process begins when the phone battery becomes low. The user chooses one of the available charging methods: Fast Charger, Normal Charger, or Power Bank. The Fast Charger usually charges the phone quickly and reliably. The Normal Charger may be affected by power interruptions, while the Power Bank may have limited charge remaining. If charging continues successfully, the phone reaches full battery. However, if charging is interrupted, the user must wait or retry charging, increasing the total charging time.
 
-Describe the real-world application that you selected.
+This problem can be modeled as a Markov Decision Process (MDP), where the user is the agent, the battery and charging conditions represent the states, the selection of charging methods and charging decisions represent the actions, and reaching a fully charged battery quickly provides higher rewards, while interruptions and delays result in lower or negative rewards. The process terminates when the phone battery is fully charged.
 
 
 ---
@@ -44,18 +41,19 @@ Where:
 
 ## State Space
 
-Write your answer here.
-
-The state space should list all possible situations in which the agent can exist.
+The state space consists of all possible situations that the smartphone can experience during the battery charging process.
 
 Example format:
 
 ```text
 S = {
-    State 1,
-    State 2,
-    State 3,
-    ...
+    S0: Battery Low,
+    S1: Fast Charger Connected,
+    S2: Normal Charger Connected,
+    S3: Power Bank Connected,
+    S4: Charging Successfully,
+    S5: Charging Interrupted,
+    S6: Battery Fully Charged
 }
 ```
 
@@ -65,28 +63,27 @@ S = {
 
 ## Sample State
 
-Write your answer here.
+S5: Charging Interrupted
 
-A sample state is one specific example from the state space.
-
+This state represents the situation where the phone stops charging because of a power cut, loose charging cable, or low power bank battery. The user must reconnect the charger or wait before charging continues.
 
 
 ---
 
 ## Action Space
 
-Write your answer here.
-
-The action space should list all possible actions available to the agent.
-
+The action space consists of all possible actions the user can take during the charging process.
 Example format:
 
 ```text
 A = {
-    Action 1,
-    Action 2,
-    Action 3,
-    ...
+    A1: Connect Fast Charger,
+    A2: Connect Normal Charger,
+    A3: Connect Power Bank,
+    A4: Continue Charging,
+    A5: Retry Charging,
+    A6: Battery Fully Charged,
+    A7: Stop
 }
 ```
 
@@ -95,9 +92,9 @@ A = {
 
 ## Sample Action
 
-Write your answer here.
+A1: Connect Fast Charger
 
-A sample action is one action selected from the action space.
+This action represents the user's decision to charge the phone using a fast charger. It provides the quickest charging speed and usually leads to the highest reward.
 
 
 
@@ -105,79 +102,163 @@ A sample action is one action selected from the action space.
 
 ## Transition Probability
 
-Write your answer here.
-
-The transition probability explains how the environment moves from one state to another after an action is taken.
-
+The transition probability defines the likelihood of moving from one state to another after the user chooses a particular charging method. In this problem, the next state depends on the selected charging option and whether the charging process continues successfully or gets interrupted. The Fast Charger always charges the phone successfully, while the Normal Charger and Power Bank may either continue charging or experience an interruption due to a power cut or low battery.
 General form:
 
 $$
 P(s' \mid s,a)
 $$
 
-This means:
 
-> Probability of reaching next state $s'$ after taking action $a$ in current state $s$.
+where:
 
+where:
 
+- $s$ = Current state
+- $a$ = Action taken
+- $s'$ = Next state
+
+The transition probabilities for this MDP are:
+
+| Current State | Action | Next State | Probability |
+|---------------|--------|------------|-------------|
+| Battery Low (S0) | Connect Fast Charger | Fast Charger Connected (S1) | 1.0 |
+| Battery Low (S0) | Connect Normal Charger | Normal Charger Connected (S2) | 1.0 |
+| Battery Low (S0) | Connect Power Bank | Power Bank Connected (S3) | 1.0 |
+| Normal Charger Connected (S2) | Continue Charging | Charging Successful (S4) | 0.8 |
+| Normal Charger Connected (S2) | Continue Charging | Charging Interrupted (S5) | 0.2 |
+| Power Bank Connected (S3) | Continue Charging | Charging Successful (S4) | 0.7 |
+| Power Bank Connected (S3) | Continue Charging | Charging Interrupted (S5) | 0.3 |
+| Fast Charger Connected (S1) | Battery Fully Charged | Battery Fully Charged (S6) | 1.0 |
+| Charging Successful (S4) | Continue Charging | Battery Fully Charged (S6) | 1.0 |
+| Charging Interrupted (S5) | Retry Charging | Battery Fully Charged (S6) | 1.0 |
 ---
 
 ## Reward Function
-
-Write your answer here.
-
-The reward function defines the feedback received by the agent after taking an action.
+The reward function provides feedback to the user (agent) after taking an action and moving from one state to another. Charging methods that help the phone reach a fully charged battery quickly receive higher rewards, while charging delays caused by power interruptions or a low power bank receive lower or negative rewards.
 
 General form:
-
 $$
 R(s,a,s')
 $$
 
+The reward values for this MDP are:
 
+| Current State | Action | Next State | Reward |
+|---------------|--------|------------|--------|
+| Battery Low (S0) | Connect Fast Charger | Fast Charger Connected (S1) | +10 |
+| Battery Low (S0) | Connect Normal Charger | Normal Charger Connected (S2) | +6 |
+| Battery Low (S0) | Connect Power Bank | Power Bank Connected (S3) | +4 |
+| Normal Charger Connected (S2) | Continue Charging | Charging Successful (S4) | +5 |
+| Normal Charger Connected (S2) | Charging Interrupted | Charging Interrupted (S5) | -3 |
+| Power Bank Connected (S3) | Continue Charging | Charging Successful (S4) | +3 |
+| Power Bank Connected (S3) | Charging Interrupted | Charging Interrupted (S5) | -5 |
+| Fast Charger Connected (S1) | Battery Fully Charged | Battery Fully Charged (S6) | +10 |
+| Charging Successful (S4) | Continue Charging | Battery Fully Charged (S6) | +8 |
+| Charging Interrupted (S5) | Retry Charging | Battery Fully Charged (S6) | +4 |
 
 ---
 
 ## Graphical Representation
 
-Write your answer here.
 
-Draw the MDP graph.
 
-The graph should include:
-
-1. States as nodes.
-2. Actions as arrows.
-3. Rewards on transitions.
-4. Transition probabilities if applicable.
-
+<img width="1536" height="1024" alt="RL-1" src="https://github.com/user-attachments/assets/973e9624-b350-4920-b808-a0e801f82c4c" />
 
 ---
 
 ## Python Representation
 
-Write your code here.
 
-Use Python dictionaries to represent the MDP.
 
 
 ```python
 # MDP Representation using Python
-# print("Name:       ")
-# print("Register Number:     ")
+from pprint import pprint
+
+print("Name: T MOUNISH")
+print("Register Number:212223240098")
+
+P = {
+
+    "Battery Low": {
+
+        "Use Fast Charger": [
+            (1.0, "Fast Charger", 10, False)
+        ],
+
+        "Use Normal Charger": [
+            (1.0, "Normal Charger", 6, False)
+        ],
+
+        "Use Power Bank": [
+            (1.0, "Power Bank", 5, False)
+        ]
+    },
+
+    "Fast Charger": {
+
+        "Fully Charged": [
+            (1.0, "Battery Fully Charged", 10, True)
+        ]
+    },
+
+    "Normal Charger": {
+
+        "Continue Charging": [
+            (0.8, "Charging Successfully", 5, False)
+        ],
+
+        "Charging Interrupted": [
+            (0.2, "Charging Interrupted", -3, False)
+        ]
+    },
+
+    "Power Bank": {
+
+        "Continue Charging": [
+            (0.7, "Charging Successfully", 4, False)
+        ],
+
+        "Charging Interrupted": [
+            (0.3, "Charging Interrupted", -4, False)
+        ]
+    },
+
+    "Charging Successfully": {
+
+        "Continue Charging": [
+            (1.0, "Battery Fully Charged", 8, True)
+        ]
+    },
+
+    "Charging Interrupted": {
+
+        "Retry Charging": [
+            (1.0, "Battery Fully Charged", 4, True)
+        ]
+    },
+
+    "Battery Fully Charged": {
+
+        "Stop": [
+            (1.0, "Battery Fully Charged", 0, True)
+        ]
+    }
+}
+
+print("\nMDP Representation (P):\n")
+pprint(P, width=100)
 
 ```
 ---
 ## Output
-
-Write your Python output here.
-
+<img width="653" height="247" alt="image" src="https://github.com/user-attachments/assets/175b3e24-ab96-4661-a7ed-440ef83b5eff" />
 
 ---
 
 ## Result
-
-Write your result here.
+Thus, the Phone Battery Charging problem was successfully modeled as a Markov Decision Process (MDP) and implemented in Python by defining its states, actions, transition probabilities, reward function, and terminal state, demonstrating the decision-making process involved in selecting the most efficient charging method to achieve a fully charged battery.
 
 
 
