@@ -138,9 +138,11 @@ The transition probabilities for this MDP are:
 The reward function provides feedback to the user (agent) after taking an action and moving from one state to another. Charging methods that help the phone reach a fully charged battery quickly receive higher rewards, while charging delays caused by power interruptions or a low power bank receive lower or negative rewards.
 
 General form:
+
 $$
 R(s,a,s')
 $$
+
 
 The reward values for this MDP are:
 
